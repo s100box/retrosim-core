@@ -1,0 +1,5 @@
+/target
+Cargo.lock
+
+# Alternate Cargo build and coverage directories.
+/target-*/

@@ -1,0 +1,26 @@
+#!/bin/sh
+# Pre-commit hook: format, lint, and tests must all pass before a commit.
+#
+# Enable in a fresh clone with:
+#     git config core.hooksPath .githooks
+#
+# Bypass for an in-progress commit with `git commit --no-verify`.
+
+set -e
+
+echo "[pre-commit] cargo fmt --all -- --check"
+if ! cargo fmt --all -- --check; then
+    echo "error: formatting issues found — run 'cargo fmt --all' and re-stage." >&2
+    exit 1
+fi
+
+echo "[pre-commit] cargo clippy --all-targets -- -D warnings"
+cargo clippy --all-targets -- -D warnings
+
+echo "[pre-commit] cargo doc --workspace --no-deps"
+RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
+
+echo "[pre-commit] cargo test"
+cargo test
+
+echo "[pre-commit] all checks passed"
